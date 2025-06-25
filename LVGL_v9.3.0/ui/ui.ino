@@ -1,3 +1,5 @@
+// Hardware (board ESP32 + ILI9341): https://github.com/rtek1000/2.4inch_ESP32-2432S024 
+
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 #include <ui.h>
