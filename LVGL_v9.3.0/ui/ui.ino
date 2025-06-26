@@ -4,6 +4,7 @@
 #include <TFT_eSPI.h>
 #include <ui.h>
 #include "CST820.h"
+#include <Wire.h>
 
 /* Define touch screen pins */
 #define I2C_SDA 33
@@ -31,7 +32,7 @@ uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 
 // TODO: Replace with your screen's touch controller
 TFT_eSPI tft = TFT_eSPI();                      /* TFT example */
-CST820 touch(I2C_SDA, I2C_SCL, TP_RST, TP_INT); /* Touch instance */
+CST820 touch(I2C_SDA, I2C_SCL, TP_RST, TP_INT); /* Touch instance - CST820 can operate from 10kHz to 400kHz */
 
 #if LV_USE_LOG != 0
 void my_print(lv_log_level_t level, const char* buf) {
@@ -156,6 +157,7 @@ void setup() {
 
   /* Initialize the touchpad */
   touch.begin();
+  Wire.setClock(400000); // set I2C speed, add it after touch.begin() to speed up
 
   // Init EEZ-Studio UI
   ui_init();
