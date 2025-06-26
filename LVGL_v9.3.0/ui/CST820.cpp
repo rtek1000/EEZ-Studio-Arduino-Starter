@@ -59,6 +59,7 @@ bool CST820::getTouch(uint16_t *x, uint16_t *y, uint8_t *gesture) {
   /* Trying to compensate for missing INT pin - Missing information to configure the INT pin and be able to use it */
   for (uint8_t i = 0; i < 5; i++) {
     i2c_read_continuous(0x03, data, 4);
+    delay(2); // Give the CST820 some time to process
     i2c_read_continuous(0x03, data2, 4);
 
     if ((data[0] == data2[0]) && (data[1] == data2[1]) && (data[2] == data2[2]) && (data[3] == data2[3])) {
