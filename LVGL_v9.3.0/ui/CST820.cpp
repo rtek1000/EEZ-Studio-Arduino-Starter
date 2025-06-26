@@ -43,17 +43,39 @@ bool CST820::getTouch(uint16_t *x, uint16_t *y, uint8_t *gesture) {
   FingerIndex = (bool)i2c_read(0x02);
 
   *gesture = i2c_read(0x01);
-  if (!(*gesture == SlideUp || *gesture == SlideDown)) {
+  if (!(*gesture == SlideUp || *gesture == SlideDown
+        || *gesture == SlideLeft || *gesture == SlideRight
+        || *gesture == SingleTap || *gesture == DoubleTap
+        || *gesture == LongPress)) {
     *gesture = None;
   }
 
-  uint8_t data[4];
-  i2c_read_continuous(0x03, data, 4);
-  *x = ((data[0] & 0x0f) << 8) | data[1];
-  *y = ((data[2] & 0x0f) << 8) | data[3];
+  uint8_t data[4] = { 0 };
+  uint8_t data2[4] = { 0 };
 
+  bool _valid_data = false;
 
-  return FingerIndex;
+  /* False touch simple filter (You can use I2C speed 400kHz to speed up) */
+  /* Trying to compensate for missing INT pin - Missing information to configure the INT pin and be able to use it */
+  for (uint8_t i = 0; i < 5; i++) {
+    i2c_read_continuous(0x03, data, 4);
+    i2c_read_continuous(0x03, data2, 4);
+
+    if ((data[0] == data2[0]) && (data[1] == data2[1]) && (data[2] == data2[2]) && (data[3] == data2[3])) {
+      *x = ((data[0] & 0x0f) << 8) | data[1];
+      *y = ((data[2] & 0x0f) << 8) | data[3];
+
+      _valid_data = true;
+
+      break;
+    }
+  }
+
+  if (_valid_data) {
+    return FingerIndex;
+  } else {
+    return false;
+  }
 }
 
 uint8_t CST820::i2c_read(uint8_t addr) {
